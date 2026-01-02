@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Naveen Bullion & Jewellery</title>
+  <meta name="description" content="Trusted bullion trading and exquisite jewellery. Live gold & silver quotes, secure buy/sell, and custom ornaments." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="icon" href="assets/img/coin.svg" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="#home"><span class="brand-mark">NB</span> Naveen Bullion</a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <button class="theme-toggle" aria-label="Toggle color theme" title="Toggle theme">
+        <span class="icon" aria-hidden="true">🌙</span>
+      </button>
+      <nav class="site-nav">
+        <a href="#quotes">Live Prices</a>
+        <a href="#get-quote">Get Quote</a>
+        <a href="#products">Products</a>
+        <a href="#services">Services</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#about">About</a>
+        <a href="#testimonials">Testimonials</a>
+        <a href="#faqs">FAQs</a>
+        <a class="cta" href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+  <div class="header-spacer"></div>
+  <div class="nav-backdrop" aria-hidden="true"></div>
+
+  <main>
+    <section id="home" class="hero">
+      <div class="container hero-grid">
+        <div class="hero-text">
+          <h1>
+            Purity. Transparency. Trust.
+            <span class="hero-accent">Bullion & Jewellery</span>
+          </h1>
+          <p>
+            We trade certified gold, silver, platinum and craft bespoke ornaments. Get real-time quotes, fair pricing, and secure settlements.
+          </p>
+          <div class="hero-actions">
+            <a href="#quotes" class="btn primary">View Live Quotes</a>
+            <a href="#products" class="btn ghost">Explore Products</a>
+          </div>
+          <div class="hero-badges">
+            <span>Hallmark Certified</span>
+            <span>XRF Purity Testing</span>
+            <span>Secure Buyback</span>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="stack">
+            <img src="assets/img/gold-bar.svg" alt="Gold bar" />
+            <img src="assets/img/ring.svg" alt="Ring" />
+            <img src="assets/img/necklace.svg" alt="Necklace" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="get-quote" class="section">
+      <div class="container">
+        <div class="section-head">
+          <h2>Get a Bullion Quote</h2>
+          <p>Share your requirements for a quick, tailored quote.</p>
+        </div>
+        <form id="quoteForm" class="form" novalidate>
+          <div class="form-grid">
+            <div class="field">
+              <label for="qName">Full Name</label>
+              <input id="qName" name="name" type="text" required placeholder="e.g., Naveen Kumar" />
+              <small class="error" data-for="qName"></small>
+            </div>
+            <div class="field">
+              <label for="qPhone">Phone</label>
+              <input id="qPhone" name="phone" type="tel" required placeholder="e.g., +91 98765 43210" />
+              <small class="error" data-for="qPhone"></small>
+            </div>
+            <div class="field">
+              <label for="qEmail">Email</label>
+              <input id="qEmail" name="email" type="email" required placeholder="e.g., you@example.com" />
+              <small class="error" data-for="qEmail"></small>
+            </div>
+
+            <div class="field">
+              <label for="qMetal">Metal</label>
+              <select id="qMetal" name="metal" required>
+                <option value="gold">Gold (XAU)</option>
+                <option value="silver">Silver (XAG)</option>
+                <option value="platinum">Platinum (XPT)</option>
+                <option value="palladium">Palladium (XPD)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="qPurity">Purity</label>
+              <select id="qPurity" name="purity" required>
+                <option value="24K">24K / 999.9</option>
+                <option value="22K">22K / 916</option>
+                <option value="999">999</option>
+                <option value="995">995</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="qSide">Type</label>
+              <select id="qSide" name="side" required>
+                <option value="buy">Buy</option>
+                <option value="sell">Sell</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="qQty">Quantity</label>
+              <div class="inline">
+                <input id="qQty" name="quantity" type="number" min="0" step="0.01" required placeholder="e.g., 100" />
+                <select id="qUnit" name="unit" required>
+                  <option value="grams">Grams</option>
+                  <option value="troy_oz">Troy Ounces</option>
+                </select>
+              </div>
+              <small class="error" data-for="qQty"></small>
+            </div>
+            <div class="field">
+              <label for="qBudget">Budget / Target Price</label>
+              <input id="qBudget" name="budget" type="number" min="0" step="0.01" placeholder="Optional" />
+            </div>
+            <div class="field">
+              <label for="qCity">Delivery City</label>
+              <input id="qCity" name="city" type="text" required placeholder="e.g., Hyderabad" />
+            </div>
+            <div class="field">
+              <label for="qDate">Preferred Date</label>
+              <input id="qDate" name="date" type="date" />
+            </div>
+
+            <div class="field span-2">
+              <label for="qNotes">Notes</label>
+              <textarea id="qNotes" name="notes" rows="3" placeholder="Any specifics: coin/bar weights, design preferences, settlement etc."></textarea>
+            </div>
+
+            <div class="field span-2 terms">
+              <label class="checkbox">
+                <input id="qConsent" name="consent" type="checkbox" required />
+                I agree to be contacted about my quote.
+              </label>
+              <small class="error" data-for="qConsent"></small>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn primary">Request Quote</button>
+            <button type="button" class="btn ghost" id="emailSubmit">Send via Email</button>
+            <span class="form-status" id="formStatus" aria-live="polite"></span>
+          </div>
+        </form>
+      </div>
+    </section>
+    <section id="quotes" class="section">
+      <div class="container">
+        <div class="section-head">
+          <h2>Live Market Quotes</h2>
+          <div class="controls">
+            <label for="currency">Currency:</label>
+            <select id="currency">
+              <option value="INR" selected>INR</option>
+              <option value="USD">USD</option>
+            </select>
+            <span class="last-updated" id="lastUpdated">—</span>
+          </div>
+        </div>
+        <div class="quotes-grid" id="quotesGrid">
+          <div class="quote-card" data-symbol="gold">
+            <div class="card-top">
+              <img src="assets/img/coin.svg" alt="Gold" />
+              <h3>Gold (XAU)</h3>
+            </div>
+            <div class="price" id="goldPrice">—</div>
+            <div class="unit">per troy ounce</div>
+            <div class="delta" id="goldDelta">—</div>
+          </div>
+          <div class="quote-card" data-symbol="silver">
+            <div class="card-top">
+              <img src="assets/img/coin.svg" alt="Silver" />
+              <h3>Silver (XAG)</h3>
+            </div>
+            <div class="price" id="silverPrice">—</div>
+            <div class="unit">per troy ounce</div>
+            <div class="delta" id="silverDelta">—</div>
+          </div>
+          <div class="quote-card" data-symbol="platinum">
+            <div class="card-top">
+              <img src="assets/img/coin.svg" alt="Platinum" />
+              <h3>Platinum (XPT)</h3>
+            </div>
+            <div class="price" id="platinumPrice">—</div>
+            <div class="unit">per troy ounce</div>
+            <div class="delta" id="platinumDelta">—</div>
+          </div>
+          <div class="quote-card" data-symbol="palladium">
+            <div class="card-top">
+              <img src="assets/img/coin.svg" alt="Palladium" />
+              <h3>Palladium (XPD)</h3>
+            </div>
+            <div class="price" id="palladiumPrice">—</div>
+            <div class="unit">per troy ounce</div>
+            <div class="delta" id="palladiumDelta">—</div>
+          </div>
+        </div>
+        <div class="note">Data via public endpoints; values auto-convert for selected currency. Intended for quick reference, not trading execution.</div>
+        <div class="tv-wrap">
+          <div class="tradingview-widget-container">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+            ({
+              "symbols": [
+                {"proName": "OANDA:XAUUSD", "title": "Gold"},
+                {"proName": "OANDA:XAGUSD", "title": "Silver"},
+                {"proName": "FX_IDC:USDINR", "title": "USD/INR"},
+                {"proName": "OANDA:XPTUSD", "title": "Platinum"}
+              ],
+              "colorTheme": "dark",
+              "isTransparent": true,
+              "displayMode": "adaptive",
+              "locale": "en"
+            });
+            </script>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="products" class="section">
+      <div class="container">
+        <div class="section-head">
+          <h2>Products</h2>
+          <p>Investment-grade bullion and hallmarked jewellery.</p>
+        </div>
+        <div class="card-grid">
+          <article class="card">
+            <img src="assets/img/gold-bar.svg" alt="Bullion Bars" />
+            <h3>Bullion Bars</h3>
+            <p>24K certified bars in multiple weights with assay cards.</p>
+          </article>
+          <article class="card">
+            <img src="assets/img/coin.svg" alt="Coins" />
+            <h3>Coins</h3>
+            <p>Minted coins in gold and silver, ideal for gifting.</p>
+          </article>
+          <article class="card">
+            <img src="assets/img/ring.svg" alt="Ornaments" />
+            <h3>Ornaments</h3>
+            <p>Custom-crafted rings, necklaces, bangles in hallmark purity.</p>
+          </article>
+          <article class="card">
+            <img src="assets/img/necklace.svg" alt="Buyback" />
+            <h3>Buyback</h3>
+            <p>Transparent buyback at market-linked rates, instant settlement.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="services" class="section">
+      <div class="container">
+        <div class="section-head">
+          <h2>Services</h2>
+          <p>End-to-end bullion solutions with uncompromised integrity.</p>
+        </div>
+        <div class="features">
+          <div class="feature">
+            <h3>Purity Testing</h3>
+            <p>XRF analysis and hallmark verification for absolute confidence.</p>
+          </div>
+          <div class="feature">
+            <h3>Secure Delivery</h3>
+            <p>Insured logistics and discreet packaging to your destination.</p>
+          </div>
+          <div class="feature">
+            <h3>Storage Advisory</h3>
+            <p>Best practices and vendor partners for safe custody.</p>
+          </div>
+          <div class="feature">
+            <h3>Investment Planning</h3>
+            <p>Spot purchases, SIP-style accumulation, and hedging guidance.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gallery" class="section">
+      <div class="container">
+        <div class="section-head">
+          <h2>Gallery</h2>
+          <p>Preview designs and bullion aesthetics.</p>
+        </div>
+        <div class="gallery-grid">
+          <figure class="gallery-item" tabindex="0">
+            <img src="assets/img/gold-bar.svg" alt="Gold bar" />
+          </figure>
+          <figure class="gallery-item" tabindex="0">
+            <img src="assets/img/coin.svg" alt="Gold coin" />
+          </figure>
+          <figure class="gallery-item" tabindex="0">
+            <img src="assets/img/ring.svg" alt="Ring" />
+          </figure>
+          <figure class="gallery-item" tabindex="0">
+            <img src="assets/img/necklace.svg" alt="Necklace" />
+          </figure>
+          <figure class="gallery-item" tabindex="0">
+            <img src="assets/img/coin.svg" alt="Silver coin" />
+          </figure>
+          <figure class="gallery-item" tabindex="0">
+            <img src="assets/img/ring.svg" alt="Bangle" />
+          </figure>
+        </div>
+        <div class="note">Replace SVGs with your own photos when ready.</div>
+      </div>
+    </section>
+
+    <section id="about" class="section">
+      <div class="container narrow">
+        <h2>About Naveen Bullion</h2>
+        <p>
+          We are a customer-first bullion desk with a passion for integrity, precision, and craftsmanship. Our traders source from reputed refineries and our artisans elevate metal to timeless ornaments.
+        </p>
+        <blockquote>
+          “Price is what you pay; purity is what you own.”
+        </blockquote>
+        <p>
+          Whether you’re investing, gifting, or celebrating milestones, we simplify bullion and jewellery with transparency and trust.
+        </p>
+      </div>
+    </section>
+
+    <section id="testimonials" class="section">
+      <div class="container">
+        <div class="section-head">
+          <h2>Testimonials</h2>
+          <p>What our clients say.</p>
+        </div>
+        <div class="testimonials">
+          <figure>
+            <blockquote>“Smooth trade execution and fair pricing. Highly recommended.”</blockquote>
+            <figcaption>— A. Sharma, Investor</figcaption>
+          </figure>
+          <figure>
+            <blockquote>“Beautiful designs and impeccable finish. Loved the bespoke necklace!”</blockquote>
+            <figcaption>— R. Mehta, Designer</figcaption>
+          </figure>
+          <figure>
+            <blockquote>“Accurate purity testing and transparent buyback. True professionals.”</blockquote>
+            <figcaption>— S. Rao, Collector</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="faqs" class="section">
+      <div class="container narrow">
+        <h2>FAQs</h2>
+        <details>
+          <summary>How are bullion prices determined?</summary>
+          <p>Spot prices update continuously based on global markets. We quote using reputable data sources and apply transparent premiums.</p>
+        </details>
+        <details>
+          <summary>Do you provide hallmark certification?</summary>
+          <p>Yes, jewellery is hallmarked and bullion comes with refinery assay cards.</p>
+        </details>
+        <details>
+          <summary>What is your buyback policy?</summary>
+          <p>We buy back at market-linked rates post purity verification. Instant settlement options available.</p>
+        </details>
+      </div>
+    </section>
+
+    <section id="contact" class="section contact">
+      <div class="container">
+        <div class="contact-card">
+          <h2>Contact Us</h2>
+          <p>
+            <strong>Naveen Bullion & Jewellery</strong><br/>
+            Main Market, Your City, India
+          </p>
+          <p>
+              Phone: <a href="tel:+919701117424">+91 9701117424</a><br/>
+              WhatsApp: <a href="https://wa.me/919701117424" target="_blank" rel="noopener">Chat on WhatsApp</a><br/>
+            Email: <a href="mailto:info@naveenbullion.example">info@naveenbullion.example</a>
+          </p>
+          <div class="contact-actions">
+            <a class="btn primary" href="mailto:info@naveenbullion.example?subject=Inquiry">Send Inquiry</a>
+            <a class="btn ghost" href="#quotes">Check Live Prices</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <div class="brand inline"><span class="brand-mark">NB</span> Naveen Bullion</div>
+        <p class="muted">© <span id="year"></span> Naveen Bullion. All rights reserved.</p>
+      </div>
+      <div class="footer-links">
+        <a href="#about">About</a>
+        <a href="#faqs">FAQs</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+  </footer>
+  <!-- Floating WhatsApp Button -->
+  <a class="whatsapp-fab" href="https://wa.me/919701117424" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+    <img src="assets/img/whatsapp.svg" alt="WhatsApp" />
+  </a>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

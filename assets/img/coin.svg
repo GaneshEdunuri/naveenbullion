@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160">
+  <defs>
+    <radialGradient id="c" cx="0.5" cy="0.4" r="0.7">
+      <stop offset="0" stop-color="#fff7d1"/>
+      <stop offset="1" stop-color="#d4af37"/>
+    </radialGradient>
+  </defs>
+  <circle cx="80" cy="80" r="60" fill="url(#c)" stroke="#8a6f1a" stroke-width="3"/>
+  <circle cx="80" cy="80" r="48" fill="none" stroke="#fff6" stroke-width="2"/>
+  <text x="80" y="88" font-family="Poppins, Arial" font-weight="700" font-size="22" text-anchor="middle" fill="#2b2208">XAU</text>
+</svg>
