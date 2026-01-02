@@ -83,7 +83,7 @@
             </div>
             <div class="field">
               <label for="qPhone">Phone</label>
-              <input id="qPhone" name="phone" type="tel" required placeholder="e.g., +91 98765 43210" />
+              <input id="qPhone" name="phone" type="tel" required placeholder="10-digit mobile" inputmode="numeric" pattern="\d{10}" maxlength="10" />
               <small class="error" data-for="qPhone"></small>
             </div>
             <div class="field">
@@ -157,7 +157,6 @@
           </div>
           <div class="form-actions">
             <button type="submit" class="btn primary">Request Quote</button>
-            <button type="button" class="btn ghost" id="emailSubmit">Send via Email</button>
             <span class="form-status" id="formStatus" aria-live="polite"></span>
           </div>
         </form>
@@ -421,6 +420,20 @@
     <img src="assets/img/whatsapp.svg" alt="WhatsApp" />
   </a>
 
+  <!-- Success Modal -->
+  <div class="modal" id="successModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card">
+      <h3 id="modalTitle">Request Submitted</h3>
+      <p>Thank you! Your details were submitted successfully. We will contact you soon.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn primary" id="modalCloseBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EmailJS (for sending without mail client) -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

@@ -194,6 +194,9 @@ body.no-scroll { overflow: hidden; }
 .field textarea { resize: vertical; }
 .field .checkbox { display: inline-flex; align-items: center; gap: 10px; }
 .error { color: var(--danger); font-size: 12px; min-height: 16px; }
+.error:empty { display: none; }
+.field input.invalid, .field select.invalid, .field textarea.invalid { border-color: var(--danger); box-shadow: 0 0 0 2px rgba(255,107,107,0.15) inset; }
+[data-theme="light"] .field input.invalid, [data-theme="light"] .field select.invalid, [data-theme="light"] .field textarea.invalid { border-color: #e6a2a2; box-shadow: 0 0 0 2px rgba(230,162,162,0.20) inset; }
 .form-actions { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
 .form-status { color: var(--muted); font-size: 13px; }
 
@@ -224,3 +227,13 @@ body.no-scroll { overflow: hidden; }
   .whatsapp-fab { width: 52px; height: 52px; }
   .whatsapp-fab img { width: 30px; height: 30px; }
 }
+
+/* Modal */
+.modal { position: fixed; inset: 0; z-index: 2000; display: none; }
+.modal.show { display: block; }
+.modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(3px); }
+.modal-card { position: relative; width: min(500px, calc(100% - 40px)); margin: 16vh auto 0; background: linear-gradient(180deg, var(--surface), var(--surface-2)); border: 1px solid #202636; border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; }
+.modal-card h3 { margin: 0 0 8px; }
+.modal-card p { margin: 0 0 12px; color: var(--muted); }
+.modal-actions { display: flex; justify-content: flex-end; }
+[data-theme="light"] .modal-card { border-color: #d7d2c2; }

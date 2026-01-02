@@ -8,7 +8,7 @@ A modern, responsive static website to showcase bullion trading and jewellery se
 - Clean, responsive design with accessible components
 - Products, services, gallery with SVG assets
 - Testimonials, FAQs, and contact with mailto/WhatsApp CTA
- - Quote form: Collects bullion requirements and sends via email or Formspree
+ - Quote form: Collects bullion requirements; sends via Web3Forms/API/EmailJS/Formspree
 
 ## Structure
 - `index.html` — main site
@@ -38,8 +38,11 @@ npx serve . -p 5500; Start-Process http://localhost:5500
 - Colors and theme: adjust CSS variables in `assets/css/styles.css`.
 - WhatsApp and Phone: update `tel:` and `wa.me` links in the Contact section.
  - Quote form destination:
-	 - Update `OWNER_EMAIL` in `assets/js/app.js` to your address.
-	 - Optional: create a free Formspree form and set `FORM_ENDPOINT` (e.g., `https://formspree.io/f/XXXXXXX`) for direct submissions without opening an email client.
+	 - Update `OWNER_EMAIL` in assets/js/app.js to your address.
+	 - Web3Forms: set `WEB3FORMS_ACCESS_KEY` in assets/js/app.js (get it from https://web3forms.com/dashboard).
+	 - API endpoint: set `API_EMAIL_ENDPOINT` in assets/js/app.js to your deployed serverless email relay.
+	 - EmailJS: set `EMAILJS_PUBLIC_KEY`, `EMAILJS_SERVICE_ID`, and `EMAILJS_TEMPLATE_ID` in assets/js/app.js.
+	 - Formspree: set `FORM_ENDPOINT` (e.g., https://formspree.io/f/XXXXXXX) if you prefer their dashboard.
 
 ## Notes
 - Quotes are for quick reference only; not for execution.
@@ -51,5 +54,14 @@ npx serve . -p 5500; Start-Process http://localhost:5500
 - For GitHub Pages: push this folder to a repo and enable Pages from the `main` branch (root).
 
 ## Form Services (Optional)
-- Formspree: Sign up, create a form, copy the endpoint, and paste into `FORM_ENDPOINT` in `assets/js/app.js`. Submissions will be emailed to you and visible in your Formspree dashboard.
-- EmailJS: Alternatively, integrate EmailJS by adding their SDK and using your service/template IDs; reach out if you want me to wire this in.
+- Web3Forms (Recommended): Create a free account, get your Access Key from https://web3forms.com/dashboard, and set `WEB3FORMS_ACCESS_KEY` in assets/js/app.js. Submissions are delivered to your configured email and success triggers the modal.
+- API Endpoint: Use a serverless function to send emails with a secure API key (so no secrets are exposed in the browser).
+	- Samples in serverless/:
+		- Cloudflare Worker: serverless/cloudflare/worker.js — set `RESEND_API_KEY` and deploy; set `API_EMAIL_ENDPOINT` in assets/js/app.js to the worker URL.
+		- Netlify Function: serverless/netlify/functions/send-email.js — set `RESEND_API_KEY` in Netlify env; set `API_EMAIL_ENDPOINT` to `/.netlify/functions/send-email`.
+	- In assets/js/app.js, set `API_EMAIL_ENDPOINT` to your deployed endpoint.
+- EmailJS: SDK is already included via CDN in index.html. Set `EMAILJS_PUBLIC_KEY`, `EMAILJS_SERVICE_ID`, and `EMAILJS_TEMPLATE_ID` in assets/js/app.js.
+- Formspree: Sign up, create a form, copy the endpoint, and paste into `FORM_ENDPOINT` in assets/js/app.js.
+
+### Submission Order
+Web3Forms → API Endpoint → EmailJS → Formspree. If one method fails, the next is attempted automatically.

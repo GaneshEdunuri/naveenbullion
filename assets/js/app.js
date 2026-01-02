@@ -3,6 +3,13 @@
   // Configuration for form submission services
   const OWNER_EMAIL = 'info@naveenbullion.example'; // update to your email
   const FORM_ENDPOINT = null; // e.g., 'https://formspree.io/f/XXXXXXXX'
+  const API_EMAIL_ENDPOINT = null; // e.g., 'https://your-worker.example.com/send-email'
+  // EmailJS config (fill these to enable direct sending)
+  const EMAILJS_PUBLIC_KEY = ''; // e.g., 'YOUR_PUBLIC_KEY'
+  const EMAILJS_SERVICE_ID = ''; // e.g., 'service_xxxxx'
+  const EMAILJS_TEMPLATE_ID = ''; // e.g., 'template_xxxxx'
+  // Web3Forms config
+  const WEB3FORMS_ACCESS_KEY = ''; // Get from https://web3forms.com/dashboard
   // Mobile nav toggle
   const navToggle = document.querySelector('.nav-toggle');
   const siteNav = document.querySelector('.site-nav');
@@ -136,11 +143,99 @@
   const quoteForm = document.getElementById('quoteForm');
   const emailSubmitBtn = document.getElementById('emailSubmit');
   const formStatus = document.getElementById('formStatus');
+  const successModal = document.getElementById('successModal');
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+  const modalTitleEl = document.getElementById('modalTitle');
+  const modalTextEl = successModal?.querySelector('.modal-card p');
 
   function getVal(id) { return (document.getElementById(id)?.value || '').trim(); }
   function setError(id, msg) {
     const el = document.querySelector(`small.error[data-for="${id}"]`);
     if (el) el.textContent = msg || '';
+    const field = document.getElementById(id);
+    if (field) {
+      if (msg) {
+        field.classList.add('invalid');
+        field.setAttribute('aria-invalid', 'true');
+      } else {
+        field.classList.remove('invalid');
+        field.removeAttribute('aria-invalid');
+      }
+    }
+  }
+  function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+  function validatePhone(phone) {
+    const digits = phone.replace(/\D/g, '');
+    return digits.length === 10; // enforce 10-digit local mobile number
+  }
+  function validateDateNotPast(dateStr) {
+    if (!dateStr) return true;
+    const d = new Date(dateStr);
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    return d >= today;
+  }
+  function validatePositiveNumber(val) {
+    if (val === '') return false;
+    const num = Number(val);
+    return Number.isFinite(num) && num > 0;
+  }
+  function clearErrors(ids) { ids.forEach(id => setError(id, '')); }
+  function validateField(id) {
+    switch (id) {
+      case 'qName': {
+        const v = getVal('qName');
+        setError('qName', v ? '' : 'Please enter your name');
+        break;
+      }
+      case 'qPhone': {
+        const v = getVal('qPhone');
+        setError('qPhone', validatePhone(v) ? '' : 'Invalid phone');
+        break;
+      }
+      case 'qEmail': {
+        const v = getVal('qEmail');
+        setError('qEmail', validateEmail(v) ? '' : 'Invalid email');
+        break;
+      }
+      case 'qMetal':
+      case 'qPurity':
+      case 'qSide':
+      case 'qUnit': {
+        const v = getVal(id);
+        setError(id, v ? '' : 'Required');
+        break;
+      }
+      case 'qQty': {
+        const v = getVal('qQty');
+        setError('qQty', validatePositiveNumber(v) ? '' : 'Enter a quantity > 0');
+        break;
+      }
+      case 'qBudget': {
+        const v = getVal('qBudget');
+        if (v) setError('qBudget', validatePositiveNumber(v) ? '' : 'Enter a valid amount'); else setError('qBudget', '');
+        break;
+      }
+      case 'qCity': {
+        const v = getVal('qCity');
+        setError('qCity', v ? '' : 'Enter delivery city');
+        break;
+      }
+      case 'qDate': {
+        const v = getVal('qDate');
+        setError('qDate', validateDateNotPast(v) ? '' : 'Date cannot be in the past');
+        break;
+      }
+      case 'qConsent': {
+        const el = document.getElementById('qConsent');
+        const ok = !!el && el.checked;
+        setError('qConsent', ok ? '' : 'Please consent to be contacted');
+        break;
+      }
+      default: break;
+    }
   }
   function validateForm() {
     let ok = true;
@@ -156,17 +251,27 @@
       ['qCity', 'Enter delivery city'],
       ['qConsent', 'Please consent to be contacted']
     ];
-    required.forEach(([id, msg]) => setError(id, ''));
+    required.forEach(([id]) => setError(id, ''));
     required.forEach(([id, msg]) => {
       const el = document.getElementById(id);
       const val = el?.type === 'checkbox' ? el.checked : (el?.value || '').trim();
       if (!val) { setError(id, msg); ok = false; }
     });
-    // Basic email/phone checks
+    // Email
     const email = getVal('qEmail');
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError('qEmail', 'Invalid email'); ok = false; }
+    if (!validateEmail(email)) { setError('qEmail', 'Invalid email'); ok = false; }
+    // Phone
     const phone = getVal('qPhone');
-    if (phone && phone.replace(/\D/g, '').length < 10) { setError('qPhone', 'Invalid phone'); ok = false; }
+    if (!validatePhone(phone)) { setError('qPhone', 'Invalid phone'); ok = false; }
+    // Quantity
+    const qty = getVal('qQty');
+    if (!validatePositiveNumber(qty)) { setError('qQty', 'Enter a quantity > 0'); ok = false; }
+    // Budget optional
+    const budget = getVal('qBudget');
+    if (budget && !validatePositiveNumber(budget)) { setError('qBudget', 'Enter a valid amount'); ok = false; }
+    // Date not past
+    const date = getVal('qDate');
+    if (date && !validateDateNotPast(date)) { setError('qDate', 'Date cannot be in the past'); ok = false; }
     return ok;
   }
   function buildSummary() {
@@ -215,23 +320,133 @@
       return false;
     }
   }
-  function submitViaMailto(summary) {
-    const subject = encodeURIComponent('Bullion Quote Request');
-    const body = encodeURIComponent(summary.text);
-    const href = `mailto:${OWNER_EMAIL}?subject=${subject}&body=${body}`;
-    window.location.href = href;
-    return true;
+  async function submitViaWeb3Forms(summary) {
+    if (!WEB3FORMS_ACCESS_KEY) return false;
+    try {
+      const payload = {
+        access_key: WEB3FORMS_ACCESS_KEY,
+        subject: 'Bullion Quote Request',
+        from_name: 'Naveen Bullion Website',
+        replyto: summary.data.email,
+        // include structured fields for convenience
+        name: summary.data.name,
+        phone: summary.data.phone,
+        email: summary.data.email,
+        side: summary.data.side,
+        metal: summary.data.metal,
+        purity: summary.data.purity,
+        quantity: summary.data.quantity,
+        unit: summary.data.unit,
+        budget: summary.data.budget || '—',
+        city: summary.data.city,
+        date: summary.data.date || '—',
+        notes: summary.data.notes || '—'
+      };
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      return !!json && json.success === true;
+    } catch (e) {
+      console.warn('Web3Forms submit failed', e);
+      return false;
+    }
   }
-  async function handleSubmit(e, forceMailto = false) {
+  async function submitViaAPI(summary) {
+    if (!API_EMAIL_ENDPOINT) return false;
+    try {
+      const res = await fetch(API_EMAIL_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(summary.data)
+      });
+      return res.ok;
+    } catch (e) {
+      console.warn('API email submit failed', e);
+      return false;
+    }
+  }
+  async function submitViaEmailJS(summary) {
+    try {
+      if (!window.emailjs) return false;
+      if (!EMAILJS_PUBLIC_KEY || !EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID) return false;
+      window.emailjs.init(EMAILJS_PUBLIC_KEY);
+      const params = {
+        to_email: OWNER_EMAIL,
+        name: summary.data.name,
+        phone: summary.data.phone,
+        email: summary.data.email,
+        side: summary.data.side,
+        metal: summary.data.metal,
+        purity: summary.data.purity,
+        quantity: `${summary.data.quantity} ${summary.data.unit}`,
+        budget: summary.data.budget || '—',
+        city: summary.data.city,
+        date: summary.data.date || '—',
+        notes: summary.data.notes || '—'
+      };
+      const res = await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
+      return !!res && res.status === 200;
+    } catch (e) {
+      console.warn('EmailJS submit failed', e);
+      return false;
+    }
+  }
+  async function handleSubmit(e) {
     e?.preventDefault();
     formStatus && (formStatus.textContent = '');
     if (!validateForm()) { formStatus && (formStatus.textContent = 'Please correct highlighted fields.'); return; }
     const summary = buildSummary();
     let ok = false;
-    if (!forceMailto) ok = await submitViaFormspree(summary);
-    if (!ok) ok = submitViaMailto(summary);
-    formStatus && (formStatus.textContent = ok ? 'Request ready in your mail client.' : 'Could not submit. Please email us directly.');
+    // Prefer Web3Forms → API endpoint → EmailJS → Formspree; no mail client fallback
+    ok = await submitViaWeb3Forms(summary);
+    if (!ok) ok = await submitViaAPI(summary);
+    if (!ok) ok = await submitViaEmailJS(summary);
+    if (!ok) ok = await submitViaFormspree(summary);
+    formStatus && (formStatus.textContent = ok ? 'Request submitted successfully.' : 'Submission not configured. Please contact us by phone or WhatsApp.');
+    if (successModal) {
+      if (ok) {
+        modalTitleEl && (modalTitleEl.textContent = 'Request Submitted');
+        modalTextEl && (modalTextEl.textContent = 'Thank you! Your details were submitted successfully. We will contact you soon.');
+      } else {
+        modalTitleEl && (modalTitleEl.textContent = 'Submission Not Configured');
+        modalTextEl && (modalTextEl.textContent = 'Your form is valid, but email delivery is not configured. Please reach us via phone or WhatsApp while we set this up.');
+      }
+      successModal.classList.add('show');
+      successModal.setAttribute('aria-hidden', 'false');
+      modalCloseBtn?.focus();
+    }
   }
   quoteForm?.addEventListener('submit', handleSubmit);
-  emailSubmitBtn?.addEventListener('click', (e) => handleSubmit(e, true));
+  emailSubmitBtn?.addEventListener('click', (e) => handleSubmit(e));
+  // Real-time validation
+  const watchIds = ['qName','qPhone','qEmail','qMetal','qPurity','qSide','qQty','qUnit','qBudget','qCity','qDate','qConsent'];
+  watchIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const evt = el.type === 'checkbox' ? 'change' : 'input';
+    el.addEventListener(evt, () => {
+      // digits-only sanitizer for phone
+      if (id === 'qPhone') {
+        const digits = el.value.replace(/\D/g, '').slice(0, 10);
+        if (el.value !== digits) el.value = digits;
+      }
+      validateField(id);
+    });
+    el.addEventListener('blur', () => validateField(id));
+  });
+
+  // Modal close interactions
+  modalCloseBtn?.addEventListener('click', () => {
+    successModal?.classList.remove('show');
+    successModal?.setAttribute('aria-hidden', 'true');
+  });
+  successModal?.addEventListener('click', (ev) => {
+    if (ev.target === successModal || ev.target.classList.contains('modal-backdrop')) {
+      successModal.classList.remove('show');
+      successModal.setAttribute('aria-hidden', 'true');
+    }
+  });
 })();
