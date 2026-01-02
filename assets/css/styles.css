@@ -25,7 +25,7 @@
   --shadow: 0 8px 20px rgba(0,0,0,0.12);
 }
 * { box-sizing: border-box; }
-html, body { height: 100%; }
+html, body { height: 100%; overflow-x: hidden; }
 body {
   margin: 0;
   background: radial-gradient(1200px 800px at 10% 10%, #10141b, #0c0f14 60%),
@@ -75,6 +75,7 @@ img { display: block; max-width: 100%; }
 .nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
 .nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
 .nav-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(2px); opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+.nav-backdrop { z-index: 65; }
 .nav-backdrop.show { opacity: 1; pointer-events: auto; }
 
 /* Disable page scroll when mobile nav is open */
@@ -90,6 +91,7 @@ body.no-scroll { overflow: hidden; }
 .hero-badges { display: flex; gap: 10px; margin-top: 16px; color: var(--muted); font-size: 14px; }
 .stack { display: grid; gap: 16px; transform: rotate(-2deg); }
 .stack img { filter: drop-shadow(var(--shadow)); border-radius: 16px; background: #0f131a; padding: 12px; }
+.hero-visual { overflow: hidden; }
 
 .btn { display: inline-block; padding: 12px 16px; border-radius: 12px; text-decoration: none; color: var(--text); border: 1px solid #2a3140; }
 .btn.primary { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #1a1f29; border: none; font-weight: 700; }
@@ -104,6 +106,8 @@ body.no-scroll { overflow: hidden; }
 .controls { display: flex; align-items: center; gap: 12px; color: var(--muted); }
 .controls select { background: #12161d; color: var(--text); border: 1px solid #2a3140; padding: 8px 10px; border-radius: 10px; }
 .last-updated { font-size: 13px; }
+/* Light mode visibility for currency select */
+[data-theme="light"] .controls select { background: var(--surface); border-color: #d7d2c2; color: var(--text); }
 
 /* Quotes */
 .quotes-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; align-items: stretch; }
@@ -174,6 +178,7 @@ body.no-scroll { overflow: hidden; }
   .section-head { flex-direction: column; align-items: start; }
   .quote-card .card-top h3 { font-size: 16px; }
   .price { font-size: 24px; }
+  .stack { transform: none; }
 }
 
 /* Forms */
