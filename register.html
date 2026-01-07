@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Register - Naveen Bullion & Jewellery</title>
+  <meta name="description" content="Create your account at Naveen Bullion & Jewellery" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="icon" href="assets/img/coin.svg" />
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-container">
+      <div class="auth-brand">
+        <a href="index.html" class="brand"><span class="brand-mark">NB</span> Naveen Bullion</a>
+      </div>
+      <div class="auth-card">
+        <h1>Create Account</h1>
+        <p class="auth-subtitle">Join us to access live market quotes and services</p>
+        
+        <form id="registerForm" class="auth-form" novalidate>
+          <div class="field">
+            <label for="regName">Full Name</label>
+            <input id="regName" name="name" type="text" required placeholder="e.g., John Doe" autocomplete="name" />
+            <small class="error" data-for="regName"></small>
+          </div>
+          
+          <div class="field">
+            <label for="regEmail">Email</label>
+            <input id="regEmail" name="email" type="email" required placeholder="you@example.com" autocomplete="email" />
+            <small class="error" data-for="regEmail"></small>
+          </div>
+          
+          <div class="field">
+            <label for="regPhone">Phone (Optional)</label>
+            <input id="regPhone" name="phone" type="tel" placeholder="10-digit mobile" inputmode="numeric" pattern="\d{10}" maxlength="10" autocomplete="tel" />
+            <small class="error" data-for="regPhone"></small>
+          </div>
+          
+          <div class="field">
+            <label for="regPassword">Password</label>
+            <input id="regPassword" name="password" type="password" required placeholder="Minimum 8 characters" autocomplete="new-password" />
+            <small class="error" data-for="regPassword"></small>
+          </div>
+          
+          <div class="field">
+            <label for="regConfirmPassword">Confirm Password</label>
+            <input id="regConfirmPassword" name="confirmPassword" type="password" required placeholder="Re-enter password" autocomplete="new-password" />
+            <small class="error" data-for="regConfirmPassword"></small>
+          </div>
+          
+          <button type="submit" class="btn primary btn-block">Create Account</button>
+          
+          <p class="auth-footer">
+            Already have an account? <a href="login.html">Login</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <script src="assets/js/auth.js"></script>
+</body>
+</html>

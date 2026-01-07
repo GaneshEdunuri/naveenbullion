@@ -1,5 +1,334 @@
 /* Naveen Bullion static site scripts */
 (function () {
+  // Authentication check - protect only live prices
+  function getCurrentUser() {
+    const user = sessionStorage.getItem('currentUser');
+    return user ? JSON.parse(user) : null;
+  }
+
+  function updateAuthUI() {
+    const user = getCurrentUser();
+    const authControls = document.querySelector('.auth-controls');
+    const userMenu = document.querySelector('.user-menu');
+    const userName = document.getElementById('userName');
+    const quotesContent = document.getElementById('quotesContent');
+    const quotesAuthPrompt = document.getElementById('quotesAuthPrompt');
+
+    if (user) {
+      // User is logged in
+      authControls && (authControls.style.display = 'none');
+      userMenu && (userMenu.style.display = 'flex');
+      userName && (userName.textContent = user.name || user.email);
+      // Show live prices
+      quotesContent && (quotesContent.style.display = 'block');
+      quotesAuthPrompt && (quotesAuthPrompt.style.display = 'none');
+    } else {
+      // User not logged in
+      authControls && (authControls.style.display = 'flex');
+      userMenu && (userMenu.style.display = 'none');
+      // Hide live prices, show login prompt
+      quotesContent && (quotesContent.style.display = 'none');
+      quotesAuthPrompt && (quotesAuthPrompt.style.display = 'block');
+    }
+  }
+
+  // Initialize auth UI immediately
+  updateAuthUI();
+
+  // Shopping Cart Management
+  let cart = [];
+  const CART_STORAGE_KEY = 'nbCart';
+
+  // Load cart from localStorage
+  function loadCart() {
+    try {
+      const saved = localStorage.getItem(CART_STORAGE_KEY);
+      cart = saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.warn('Failed to load cart', e);
+      cart = [];
+    }
+    updateCartBadge();
+    renderProductButtons();
+  }
+
+  // Render product buttons based on cart state
+  function renderProductButtons() {
+    document.querySelectorAll('.product-card').forEach(card => {
+      const metal = card.dataset.metal;
+      const weight = parseInt(card.dataset.weight);
+      const cartItem = cart.find(item => item.metal === metal && item.weight === weight);
+      const btnContainer = card.querySelector('.product-btn-container');
+      
+      if (!btnContainer) return;
+      
+      if (cartItem) {
+        // Show quantity controls
+        btnContainer.innerHTML = `
+          <div class="product-qty-controls">
+            <button class="product-qty-btn" data-action="decrease" data-metal="${metal}" data-weight="${weight}">−</button>
+            <span class="product-qty">${cartItem.quantity}</span>
+            <button class="product-qty-btn" data-action="increase" data-metal="${metal}" data-weight="${weight}">+</button>
+          </div>
+        `;
+      } else {
+        // Show Add to Cart button
+        btnContainer.innerHTML = `
+          <button class="btn btn-add-cart" data-metal="${metal}" data-weight="${weight}">Add to Cart</button>
+        `;
+      }
+    });
+    
+    // Attach event listeners
+    attachProductButtonListeners();
+  }
+
+  // Attach event listeners to product buttons
+  function attachProductButtonListeners() {
+    // Add to cart buttons
+    document.querySelectorAll('.btn-add-cart').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const metal = e.target.dataset.metal;
+        const weight = parseInt(e.target.dataset.weight);
+        if (metal && weight) {
+          addToCart(metal, weight);
+        }
+      });
+    });
+    
+    // Quantity control buttons
+    document.querySelectorAll('.product-qty-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const metal = e.target.dataset.metal;
+        const weight = parseInt(e.target.dataset.weight);
+        const action = e.target.dataset.action;
+        const item = cart.find(i => i.metal === metal && i.weight === weight);
+        if (item) {
+          const newQty = action === 'increase' ? item.quantity + 1 : item.quantity - 1;
+          updateCartItem(metal, weight, newQty);
+        }
+      });
+    });
+  }
+
+  // Save cart to localStorage
+  function saveCart() {
+    try {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    } catch (e) {
+      console.warn('Failed to save cart', e);
+    }
+    updateCartBadge();
+  }
+
+  // Update cart badge count
+  function updateCartBadge() {
+    const badge = document.getElementById('cartBadge');
+    if (!badge) return;
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    badge.textContent = totalItems;
+    badge.style.display = totalItems > 0 ? 'flex' : 'none';
+  }
+
+  // Add item to cart
+  function addToCart(metal, weight) {
+    const existingItem = cart.find(item => item.metal === metal && item.weight === weight);
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      cart.push({
+        metal: metal,
+        weight: weight,
+        quantity: 1,
+        pricePerGram: getCurrentPricePerGram(metal)
+      });
+    }
+    saveCart();
+    renderCart();
+    renderProductButtons();
+    showCartNotification(metal, weight);
+  }
+
+  // Get current price per gram from live data
+  function getCurrentPricePerGram(metal) {
+    const ccy = document.getElementById('currency')?.value || 'INR';
+    const rate = ccy === 'INR' ? fxRateINR : 1;
+    const ozPrice = quotesUSD[metal] || 0;
+    // 1 troy oz = 31.1035 grams
+    return (ozPrice * rate) / 31.1035;
+  }
+
+  // Update item quantity
+  function updateCartItem(metal, weight, newQuantity) {
+    const item = cart.find(item => item.metal === metal && item.weight === weight);
+    if (item) {
+      if (newQuantity <= 0) {
+        removeFromCart(metal, weight);
+      } else {
+        item.quantity = newQuantity;
+        saveCart();
+        renderCart();
+        renderProductButtons();
+      }
+    }
+  }
+
+  // Remove item from cart
+  function removeFromCart(metal, weight) {
+    cart = cart.filter(item => !(item.metal === metal && item.weight === weight));
+    saveCart();
+    renderCart();
+    renderProductButtons();
+  }
+
+  // Clear entire cart
+  function clearCart() {
+    if (confirm('Are you sure you want to clear your cart?')) {
+      cart = [];
+      saveCart();
+      renderCart();
+      renderProductButtons();
+    }
+  }
+
+  // Calculate cart total
+  function calculateCartTotal() {
+    return cart.reduce((total, item) => {
+      const currentPrice = getCurrentPricePerGram(item.metal);
+      return total + (currentPrice * item.weight * item.quantity);
+    }, 0);
+  }
+
+  // Format money
+  function formatCartMoney(value) {
+    const ccy = document.getElementById('currency')?.value || 'INR';
+    const opts = { style: 'currency', currency: ccy, maximumFractionDigits: 2 };
+    return new Intl.NumberFormat(undefined, opts).format(value);
+  }
+
+  // Render cart modal content
+  function renderCart() {
+    const cartItems = document.getElementById('cartItems');
+    const cartEmpty = document.getElementById('cartEmpty');
+    const cartFooter = document.getElementById('cartFooter');
+    const cartTotal = document.getElementById('cartTotal');
+
+    if (cart.length === 0) {
+      cartEmpty.style.display = 'block';
+      cartItems.style.display = 'none';
+      cartFooter.style.display = 'none';
+      return;
+    }
+
+    cartEmpty.style.display = 'none';
+    cartItems.style.display = 'block';
+    cartFooter.style.display = 'flex';
+
+    // Render cart items
+    cartItems.innerHTML = cart.map(item => {
+      const currentPrice = getCurrentPricePerGram(item.metal);
+      const itemTotal = currentPrice * item.weight * item.quantity;
+      return `
+        <div class="cart-item" data-metal="${item.metal}" data-weight="${item.weight}">
+          <div class="cart-item-info">
+            <h4>${item.metal.charAt(0).toUpperCase() + item.metal.slice(1)} - ${item.weight}g</h4>
+            <p class="cart-item-price">${formatCartMoney(currentPrice)} per gram</p>
+          </div>
+          <div class="cart-item-controls">
+            <div class="quantity-controls">
+              <button class="qty-btn" data-action="decrease" data-metal="${item.metal}" data-weight="${item.weight}">−</button>
+              <input type="number" class="qty-input" value="${item.quantity}" min="1" data-metal="${item.metal}" data-weight="${item.weight}" />
+              <button class="qty-btn" data-action="increase" data-metal="${item.metal}" data-weight="${item.weight}">+</button>
+            </div>
+            <div class="cart-item-total">${formatCartMoney(itemTotal)}</div>
+            <button class="remove-btn" data-metal="${item.metal}" data-weight="${item.weight}" aria-label="Remove item">×</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Update total
+    cartTotal.textContent = formatCartMoney(calculateCartTotal());
+
+    // Add event listeners for cart controls
+    attachCartEventListeners();
+  }
+
+  // Attach event listeners to cart item controls
+  function attachCartEventListeners() {
+    // Quantity buttons
+    document.querySelectorAll('.qty-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const metal = e.target.dataset.metal;
+        const weight = parseInt(e.target.dataset.weight);
+        const action = e.target.dataset.action;
+        const item = cart.find(i => i.metal === metal && i.weight === weight);
+        if (item) {
+          const newQty = action === 'increase' ? item.quantity + 1 : item.quantity - 1;
+          updateCartItem(metal, weight, newQty);
+        }
+      });
+    });
+
+    // Quantity inputs
+    document.querySelectorAll('.qty-input').forEach(input => {
+      input.addEventListener('change', (e) => {
+        const metal = e.target.dataset.metal;
+        const weight = parseInt(e.target.dataset.weight);
+        const newQty = parseInt(e.target.value) || 1;
+        updateCartItem(metal, weight, newQty);
+      });
+    });
+
+    // Remove buttons
+    document.querySelectorAll('.remove-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const metal = e.target.dataset.metal;
+        const weight = parseInt(e.target.dataset.weight);
+        removeFromCart(metal, weight);
+      });
+    });
+  }
+
+  // Show cart notification
+  function showCartNotification(metal, weight) {
+    // Simple notification - you can enhance this with a toast/snackbar
+    console.log(`Added ${metal} ${weight}g to cart`);
+  }
+
+  // Cart modal controls
+  const cartToggle = document.querySelector('.cart-toggle');
+  const cartModal = document.getElementById('cartModal');
+  const cartModalClose = document.getElementById('cartModalClose');
+  const clearCartBtn = document.getElementById('clearCartBtn');
+  const checkoutBtn = document.getElementById('checkoutBtn');
+
+  function openCartModal() {
+    if (!cartModal) return;
+    renderCart();
+    cartModal.classList.add('show');
+    cartModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('no-scroll');
+  }
+
+  function closeCartModal() {
+    if (!cartModal) return;
+    cartModal.classList.remove('show');
+    cartModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('no-scroll');
+  }
+
+  cartToggle?.addEventListener('click', openCartModal);
+  cartModalClose?.addEventListener('click', closeCartModal);
+  cartModal?.querySelector('.modal-backdrop')?.addEventListener('click', closeCartModal);
+  clearCartBtn?.addEventListener('click', clearCart);
+  checkoutBtn?.addEventListener('click', () => {
+    alert('Checkout functionality coming soon! Your cart total is: ' + formatCartMoney(calculateCartTotal()));
+  });
+
+  // Initialize cart on page load
+  loadCart();
+
   // Configuration for form submission services
   const OWNER_EMAIL = 'info@naveenbullion.example'; // update to your email
   const FORM_ENDPOINT = null; // e.g., 'https://formspree.io/f/XXXXXXXX'
@@ -10,6 +339,11 @@
   const EMAILJS_TEMPLATE_ID = ''; // e.g., 'template_xxxxx'
   // Web3Forms config
   const WEB3FORMS_ACCESS_KEY = ''; // Get from https://web3forms.com/dashboard
+  
+  // Authentication API config
+  const AUTH_API_ENDPOINT = null; // e.g., 'https://your-api.example.com/auth' or Firebase/Supabase URL
+  const USE_LOCALSTORAGE_AUTH = true; // Set to false when you have a real backend
+  
   // Mobile nav toggle
   const navToggle = document.querySelector('.nav-toggle');
   const siteNav = document.querySelector('.site-nav');
@@ -89,14 +423,49 @@
   function updateUI() {
     const ccy = currencyEl ? currencyEl.value : 'INR';
     const rate = ccy === 'INR' ? fxRateINR : 1;
+    
+    // Update spot price references
+    const goldSpotEl = document.getElementById('goldSpotPrice');
+    const silverSpotEl = document.getElementById('silverSpotPrice');
+    if (goldSpotEl) {
+      const goldVal = quotesUSD.gold != null ? quotesUSD.gold * rate : null;
+      goldSpotEl.textContent = formatMoney(goldVal, ccy);
+    }
+    if (silverSpotEl) {
+      const silverVal = quotesUSD.silver != null ? quotesUSD.silver * rate : null;
+      silverSpotEl.textContent = formatMoney(silverVal, ccy);
+    }
+
+    // Update product prices (per gram prices for gold and silver)
+    updateProductPrices('gold', rate);
+    updateProductPrices('silver', rate);
+
+    // Update existing quote cards if they exist
     ['gold','silver','platinum','palladium'].forEach(sym => {
-      const priceEl = document.getElementById(ids[sym].price);
-      const deltaEl = document.getElementById(ids[sym].delta);
-      const usd = quotesUSD[sym];
-      const prev = prevUSD[sym];
-      const val = usd != null ? usd * rate : null;
-      if (priceEl) priceEl.textContent = formatMoney(val, ccy);
-      setDelta(deltaEl, usd, prev);
+      const priceEl = document.getElementById(ids[sym]?.price);
+      const deltaEl = document.getElementById(ids[sym]?.delta);
+      if (priceEl) {
+        const usd = quotesUSD[sym];
+        const prev = prevUSD[sym];
+        const val = usd != null ? usd * rate : null;
+        priceEl.textContent = formatMoney(val, ccy);
+        setDelta(deltaEl, usd, prev);
+      }
+    });
+  }
+
+  // Update product prices in the catalog
+  function updateProductPrices(metal, rate) {
+    const pricePerGram = getCurrentPricePerGram(metal);
+    const ccy = currencyEl ? currencyEl.value : 'INR';
+    
+    // Update all product cards for this metal
+    [5, 10, 50, 100].forEach(weight => {
+      const priceEl = document.querySelector(`[data-price-target="${metal}-${weight}"]`);
+      if (priceEl) {
+        const totalPrice = pricePerGram * weight;
+        priceEl.textContent = formatMoney(totalPrice, ccy);
+      }
     });
   }
   async function fetchFX() {
@@ -448,5 +817,15 @@
       successModal.classList.remove('show');
       successModal.setAttribute('aria-hidden', 'true');
     }
+  });
+
+  // ========================================
+  // LOGOUT HANDLER
+  // ========================================
+  
+  const logoutBtn = document.getElementById('logoutBtn');
+  logoutBtn?.addEventListener('click', () => {
+    sessionStorage.removeItem('currentUser');
+    window.location.reload(); // Reload to show auth gate
   });
 })();

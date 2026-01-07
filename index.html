@@ -21,6 +21,10 @@
       <button class="theme-toggle" aria-label="Toggle color theme" title="Toggle theme">
         <span class="icon" aria-hidden="true">🌙</span>
       </button>
+      <button class="cart-toggle" aria-label="View shopping cart" title="View cart">
+        <span class="icon" aria-hidden="true">🛒</span>
+        <span class="cart-badge" id="cartBadge">0</span>
+      </button>
       <nav class="site-nav">
         <a href="#quotes">Live Prices</a>
         <a href="#get-quote">Get Quote</a>
@@ -28,10 +32,17 @@
         <a href="#services">Services</a>
         <a href="#gallery">Gallery</a>
         <a href="#about">About</a>
-        <a href="#testimonials">Testimonials</a>
         <a href="#faqs">FAQs</a>
         <a class="cta" href="#contact">Contact</a>
       </nav>
+      <div class="auth-controls">
+        <a href="login.html" class="btn ghost btn-sm">Login</a>
+        <a href="register.html" class="btn primary btn-sm">Register</a>
+      </div>
+      <div class="user-menu" style="display: none;">
+        <span class="user-name" id="userName"></span>
+        <button class="btn ghost btn-sm" id="logoutBtn">Logout</button>
+      </div>
     </div>
   </header>
   <div class="header-spacer"></div>
@@ -175,42 +186,126 @@
             <span class="last-updated" id="lastUpdated">—</span>
           </div>
         </div>
-        <div class="quotes-grid" id="quotesGrid">
-          <div class="quote-card" data-symbol="gold">
-            <div class="card-top">
-              <img src="assets/img/coin.svg" alt="Gold" />
-              <h3>Gold (XAU)</h3>
+        
+        <!-- Login prompt for non-authenticated users -->
+        <div id="quotesAuthPrompt" class="auth-prompt" style="display: none;">
+          <p>Please <a href="login.html">login</a> or <a href="register.html">create an account</a> to view live market quotes.</p>
+        </div>
+        
+        <!-- Protected quotes content -->
+        <div id="quotesContent" style="display: none;">
+        
+        <!-- Gold Category -->
+        <div class="product-category">
+          <h3 class="category-title">
+            <img src="assets/img/coin.svg" alt="Gold" />
+            Gold (24K)
+          </h3>
+          <div class="products-grid" id="goldProducts">
+            <div class="product-card" data-metal="gold" data-weight="5">
+              <div class="product-header">
+                <img src="assets/img/gold-bar.svg" alt="Gold Bar" class="gold-img" />
+                <h4>5 Grams</h4>
+              </div>
+              <div class="product-price" data-price-target="gold-5">—</div>
+              <div class="product-btn-container">
+                <button class="btn btn-add-cart" data-metal="gold" data-weight="5">Add to Cart</button>
+              </div>
             </div>
-            <div class="price" id="goldPrice">—</div>
-            <div class="unit">per troy ounce</div>
-            <div class="delta" id="goldDelta">—</div>
+            <div class="product-card" data-metal="gold" data-weight="10">
+              <div class="product-header">
+                <img src="assets/img/gold-bar.svg" alt="Gold Bar" class="gold-img" />
+                <h4>10 Grams</h4>
+              </div>
+              <div class="product-price" data-price-target="gold-10">—</div>
+              <div class="product-btn-container">
+                <button class="btn btn-add-cart" data-metal="gold" data-weight="10">Add to Cart</button>
+              </div>
+            </div>
+            <div class="product-card" data-metal="gold" data-weight="50">
+              <div class="product-header">
+                <img src="assets/img/gold-bar.svg" alt="Gold Bar" class="gold-img" />
+                <h4>50 Grams</h4>
+              </div>
+              <div class="product-price" data-price-target="gold-50">—</div>
+              <div class="product-btn-container">
+                <button class="btn btn-add-cart" data-metal="gold" data-weight="50">Add to Cart</button>
+              </div>
+            </div>
+            <div class="product-card" data-metal="gold" data-weight="100">
+              <div class="product-header">
+                <img src="assets/img/gold-bar.svg" alt="Gold Bar" class="gold-img" />
+                <h4>100 Grams</h4>
+              </div>
+              <div class="product-price" data-price-target="gold-100">—</div>
+              <div class="product-btn-container">
+                <button class="btn btn-add-cart" data-metal="gold" data-weight="100">Add to Cart</button>
+              </div>
+            </div>
           </div>
-          <div class="quote-card" data-symbol="silver">
-            <div class="card-top">
-              <img src="assets/img/coin.svg" alt="Silver" />
-              <h3>Silver (XAG)</h3>
+        </div>
+
+        <!-- Silver Category -->
+        <div class="product-category">
+          <h3 class="category-title">
+            <img src="assets/img/coin.svg" alt="Silver" />
+            Silver (999)
+          </h3>
+          <div class="products-grid" id="silverProducts">
+            <div class="product-card" data-metal="silver" data-weight="5">
+              <div class="product-header">
+                <img src="assets/img/coin.svg" alt="Silver Coin" />
+                <h4>5 Grams</h4>
+              </div>
+              <div class="product-price" data-price-target="silver-5">—</div>
+              <div class="product-btn-container">
+                <button class="btn btn-add-cart" data-metal="silver" data-weight="5">Add to Cart</button>
+              </div>
             </div>
-            <div class="price" id="silverPrice">—</div>
-            <div class="unit">per troy ounce</div>
-            <div class="delta" id="silverDelta">—</div>
+            <div class="product-card" data-metal="silver" data-weight="10">
+              <div class="product-header">
+                <img src="assets/img/coin.svg" alt="Silver Coin" />
+                <h4>10 Grams</h4>
+              </div>
+              <div class="product-price" data-price-target="silver-10">—</div>
+              <div class="product-btn-container">
+                <button class="btn btn-add-cart" data-metal="silver" data-weight="10">Add to Cart</button>
+              </div>
+            </div>
+            <div class="product-card" data-metal="silver" data-weight="50">
+              <div class="product-header">
+                <img src="assets/img/coin.svg" alt="Silver Coin" />
+                <h4>50 Grams</h4>
+              </div>
+              <div class="product-price" data-price-target="silver-50">—</div>
+              <div class="product-btn-container">
+                <button class="btn btn-add-cart" data-metal="silver" data-weight="50">Add to Cart</button>
+              </div>
+            </div>
+            <div class="product-card" data-metal="silver" data-weight="100">
+              <div class="product-header">
+                <img src="assets/img/coin.svg" alt="Silver Coin" />
+                <h4>100 Grams</h4>
+              </div>
+              <div class="product-price" data-price-target="silver-100">—</div>
+              <div class="product-btn-container">
+                <button class="btn btn-add-cart" data-metal="silver" data-weight="100">Add to Cart</button>
+              </div>
+            </div>
           </div>
-          <div class="quote-card" data-symbol="platinum">
-            <div class="card-top">
-              <img src="assets/img/coin.svg" alt="Platinum" />
-              <h3>Platinum (XPT)</h3>
-            </div>
-            <div class="price" id="platinumPrice">—</div>
-            <div class="unit">per troy ounce</div>
-            <div class="delta" id="platinumDelta">—</div>
+        </div>
+        
+        <!-- Market Reference -->
+        <div class="market-reference">
+          <div class="ref-item">
+            <span class="ref-label">Gold Spot:</span>
+            <span class="ref-price" id="goldSpotPrice">—</span>
+            <span class="ref-unit">per troy oz</span>
           </div>
-          <div class="quote-card" data-symbol="palladium">
-            <div class="card-top">
-              <img src="assets/img/coin.svg" alt="Palladium" />
-              <h3>Palladium (XPD)</h3>
-            </div>
-            <div class="price" id="palladiumPrice">—</div>
-            <div class="unit">per troy ounce</div>
-            <div class="delta" id="palladiumDelta">—</div>
+          <div class="ref-item">
+            <span class="ref-label">Silver Spot:</span>
+            <span class="ref-price" id="silverSpotPrice">—</span>
+            <span class="ref-unit">per troy oz</span>
           </div>
         </div>
         <div class="note">Data via public endpoints; values auto-convert for selected currency. Intended for quick reference, not trading execution.</div>
@@ -233,6 +328,8 @@
             </script>
           </div>
         </div>
+        </div>
+        <!-- End protected quotes content -->
       </div>
     </section>
 
@@ -339,29 +436,6 @@
       </div>
     </section>
 
-    <section id="testimonials" class="section">
-      <div class="container">
-        <div class="section-head">
-          <h2>Testimonials</h2>
-          <p>What our clients say.</p>
-        </div>
-        <div class="testimonials">
-          <figure>
-            <blockquote>“Smooth trade execution and fair pricing. Highly recommended.”</blockquote>
-            <figcaption>— A. Sharma, Investor</figcaption>
-          </figure>
-          <figure>
-            <blockquote>“Beautiful designs and impeccable finish. Loved the bespoke necklace!”</blockquote>
-            <figcaption>— R. Mehta, Designer</figcaption>
-          </figure>
-          <figure>
-            <blockquote>“Accurate purity testing and transparent buyback. True professionals.”</blockquote>
-            <figcaption>— S. Rao, Collector</figcaption>
-          </figure>
-        </div>
-      </div>
-    </section>
-
     <section id="faqs" class="section">
       <div class="container narrow">
         <h2>FAQs</h2>
@@ -402,6 +476,13 @@
     </section>
   </main>
 
+  <section class="eco-section">
+    <div class="container eco-container">
+      <img src="assets/img/earth-recycle.svg" alt="Save Earth - Sustainable Practices" class="eco-icon" />
+      <p class="eco-text">Committed to sustainable practices. We recycle precious metals and minimize environmental impact in every transaction.</p>
+    </div>
+  </section>
+
   <footer class="site-footer">
     <div class="container footer-grid">
       <div>
@@ -419,6 +500,35 @@
   <a class="whatsapp-fab" href="https://wa.me/919701117424" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
     <img src="assets/img/whatsapp.svg" alt="WhatsApp" />
   </a>
+
+  <!-- Cart Modal -->
+  <div class="modal" id="cartModal" role="dialog" aria-modal="true" aria-labelledby="cartModalTitle" aria-hidden="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card cart-modal-card">
+      <div class="modal-header">
+        <h3 id="cartModalTitle">Shopping Cart</h3>
+        <button type="button" class="modal-close" id="cartModalClose" aria-label="Close cart">&times;</button>
+      </div>
+      <div class="cart-content" id="cartContent">
+        <div class="cart-empty" id="cartEmpty">
+          <p>Your cart is empty</p>
+        </div>
+        <div class="cart-items" id="cartItems" style="display: none;">
+          <!-- Cart items will be dynamically inserted here -->
+        </div>
+      </div>
+      <div class="cart-footer" id="cartFooter" style="display: none;">
+        <div class="cart-total">
+          <span>Total:</span>
+          <span class="cart-total-amount" id="cartTotal">—</span>
+        </div>
+        <div class="cart-actions">
+          <button type="button" class="btn ghost" id="clearCartBtn">Clear Cart</button>
+          <button type="button" class="btn primary" id="checkoutBtn">Proceed to Checkout</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Success Modal -->
   <div class="modal" id="successModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">

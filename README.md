@@ -8,7 +8,8 @@ A modern, responsive static website to showcase bullion trading and jewellery se
 - Clean, responsive design with accessible components
 - Products, services, gallery with SVG assets
 - Testimonials, FAQs, and contact with mailto/WhatsApp CTA
- - Quote form: Collects bullion requirements; sends via Web3Forms/API/EmailJS/Formspree
+- Quote form: Collects bullion requirements; sends via Web3Forms/API/EmailJS/Formspree
+- User authentication: Registration and login with session management
 
 ## Structure
 - `index.html` — main site
@@ -65,3 +66,59 @@ npx serve . -p 5500; Start-Process http://localhost:5500
 
 ### Submission Order
 Web3Forms → API Endpoint → EmailJS → Formspree. If one method fails, the next is attempted automatically.
+
+## Authentication System
+The site includes user authentication with separate registration and login pages. **All content is protected and only visible after logging in.**
+
+### Page Structure
+- **index.html** - Main site (protected, requires login)
+- **register.html** - New user registration page
+- **login.html** - User login page
+
+### Demo Mode (Default)
+By default, `USE_LOCALSTORAGE_AUTH = true` in [assets/js/auth.js](assets/js/auth.js) enables demo mode:
+- User accounts stored in browser localStorage
+- Passwords stored in plain text (browser only - not sent anywhere)
+- Sessions managed via sessionStorage (clears on browser close)
+- Perfect for testing without backend setup
+
+**User Flow:**
+1. Visit [index.html](index.html) → Auth gate shown with Login/Register options
+2. Click **Register** → Redirects to [register.html](register.html)
+3. Fill form: Name, Email, Phone (optional), Password (8+ chars), Confirm Password
+4. Submit → Account created, session saved, redirected to [index.html](index.html)
+5. Full site content and live prices now visible
+6. Click **Logout** → Session cleared, auth gate shown again
+
+**Or Login:**
+1. Click **Login** from auth gate → Redirects to [login.html](login.html)
+2. Enter email and password
+3. Submit → Session saved, redirected to [index.html](index.html)
+
+### Production Mode (Backend API)
+For production, set `USE_LOCALSTORAGE_AUTH = false` and configure `AUTH_API_ENDPOINT` in [assets/js/auth.js](assets/js/auth.js).
+
+**Required API Endpoints:**
+```
+POST /auth/register
+Body: { name, email, phone, password }
+Response: { success: true, user: { name, email } } or { success: false, error: "message" }
+
+POST /auth/login
+Body: { email, password }
+Response: { success: true, user: { name, email }, token?: "jwt" } or { success: false, error: "message" }
+```
+
+**Backend Options:**
+1. **Custom API:** Express.js, Django, Flask, etc. Use bcrypt for password hashing and JWT for tokens
+2. **Firebase Authentication:** Use Firebase Auth SDK or REST API
+3. **Supabase:** Built-in auth with PostgreSQL
+4. **Auth0 / Clerk:** Third-party authentication services
+
+### Security Notes
+- **Demo mode:** Not secure - use only for local testing
+- **Production:** Always hash passwords server-side (never send plain text)
+- **HTTPS:** Required for production to protect credentials
+- **CORS:** Configure your API to allow requests from your domain
+- **Rate limiting:** Implement on backend to prevent brute force attacks
+- **Content Protection:** All site content is hidden until user logs in
