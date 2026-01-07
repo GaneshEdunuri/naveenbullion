@@ -323,8 +323,145 @@
   cartModal?.querySelector('.modal-backdrop')?.addEventListener('click', closeCartModal);
   clearCartBtn?.addEventListener('click', clearCart);
   checkoutBtn?.addEventListener('click', () => {
-    alert('Checkout functionality coming soon! Your cart total is: ' + formatCartMoney(calculateCartTotal()));
+    if (cart.length === 0) {
+      alert('Your cart is empty!');
+      return;
+    }
+    
+    if (!RAZORPAY_KEY_ID) {
+      alert('Payment gateway not configured. Please add your Razorpay Key ID in app.js or contact us directly to complete your order.');
+      return;
+    }
+    
+    initiateRazorpayPayment();
   });
+
+  // Razorpay Payment Integration
+  function initiateRazorpayPayment() {
+    const user = getCurrentUser();
+    const totalAmount = calculateCartTotal();
+    
+    // Convert to paise (smallest currency unit for INR)
+    const amountInPaise = Math.round(totalAmount * 100);
+    
+    // Prepare order details
+    const orderDetails = {
+      cart: cart.map(item => ({
+        metal: item.metal,
+        weight: item.weight,
+        quantity: item.quantity,
+        price: getCurrentPricePerGram(item.metal) * item.weight
+      })),
+      total: totalAmount,
+      currency: document.getElementById('currency')?.value || 'INR',
+      user: user || { email: '', name: '' }
+    };
+    
+    const options = {
+      key: RAZORPAY_KEY_ID,
+      amount: amountInPaise,
+      currency: orderDetails.currency,
+      name: BUSINESS_NAME,
+      description: `Purchase of ${cart.length} item(s) - Gold & Silver`,
+      image: BUSINESS_LOGO,
+      prefill: {
+        name: user?.name || '',
+        email: user?.email || '',
+        contact: CONTACT_PHONE
+      },
+      theme: {
+        color: '#d4af37'
+      },
+      handler: function (response) {
+        handlePaymentSuccess(response, orderDetails);
+      },
+      modal: {
+        ondismiss: function() {
+          console.log('Payment cancelled by user');
+        }
+      }
+    };
+    
+    const razorpay = new Razorpay(options);
+    razorpay.open();
+  }
+  
+  function handlePaymentSuccess(response, orderDetails) {
+    // Payment successful
+    const paymentId = response.razorpay_payment_id;
+    
+    // Show success message
+    const modalTitle = document.getElementById('modalTitle');
+    const modalText = successModal?.querySelector('.modal-card p');
+    
+    if (modalTitle) modalTitle.textContent = 'Payment Successful!';
+    if (modalText) {
+      modalText.innerHTML = `
+        <strong>Thank you for your purchase!</strong><br/>
+        Payment ID: <code>${paymentId}</code><br/><br/>
+        Order Total: ${formatCartMoney(orderDetails.total)}<br/>
+        Items: ${orderDetails.cart.length}<br/><br/>
+        A confirmation email will be sent to ${orderDetails.user.email || 'your registered email'}.<br/>
+        We will contact you shortly for delivery details.
+      `;
+    }
+    
+    // Send order confirmation email
+    sendOrderConfirmationEmail(paymentId, orderDetails);
+    
+    // Clear cart
+    cart = [];
+    saveCart();
+    renderCart();
+    renderProductButtons();
+    
+    // Close cart modal
+    closeCartModal();
+    
+    // Show success modal
+    if (successModal) {
+      successModal.classList.add('show');
+      successModal.setAttribute('aria-hidden', 'false');
+    }
+  }
+  
+  async function sendOrderConfirmationEmail(paymentId, orderDetails) {
+    const itemsHTML = orderDetails.cart.map(item => 
+      `${item.metal.toUpperCase()} ${item.weight}g x ${item.quantity} = ${formatCartMoney(item.price * item.quantity)}`
+    ).join('<br/>');
+    
+    const emailBody = `
+      <h2>Order Confirmation - ${BUSINESS_NAME}</h2>
+      <p><strong>Payment ID:</strong> ${paymentId}</p>
+      <p><strong>Customer:</strong> ${orderDetails.user.name || 'Guest'} (${orderDetails.user.email})</p>
+      <h3>Order Details:</h3>
+      ${itemsHTML}
+      <p><strong>Total Amount:</strong> ${formatCartMoney(orderDetails.total)}</p>
+      <hr/>
+      <p>We will contact you shortly for delivery arrangements.</p>
+      <p>Thank you for choosing ${BUSINESS_NAME}!</p>
+    `;
+    
+    // Try sending via Web3Forms if configured
+    if (WEB3FORMS_ACCESS_KEY) {
+      try {
+        await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            access_key: WEB3FORMS_ACCESS_KEY,
+            subject: `New Order - Payment ID: ${paymentId}`,
+            from_name: BUSINESS_NAME,
+            to: CONTACT_EMAIL,
+            message: emailBody,
+            replyto: orderDetails.user.email
+          })
+        });
+      } catch (e) {
+        console.warn('Email notification failed', e);
+      }
+    }
+  }
 
   // Initialize cart on page load
   loadCart();
@@ -339,6 +476,14 @@
   const EMAILJS_TEMPLATE_ID = ''; // e.g., 'template_xxxxx'
   // Web3Forms config
   const WEB3FORMS_ACCESS_KEY = ''; // Get from https://web3forms.com/dashboard
+  
+  // Razorpay Payment Gateway Configuration
+  const RAZORPAY_KEY_ID = ''; // Get from https://dashboard.razorpay.com/app/keys (use test key for testing)
+  const RAZORPAY_KEY_SECRET = ''; // Keep this secret, only use on backend
+  const BUSINESS_NAME = 'Naveen Bullion & Jewellery';
+  const BUSINESS_LOGO = 'assets/img/coin.svg'; // Your business logo
+  const CONTACT_EMAIL = 'info@naveenbullion.example';
+  const CONTACT_PHONE = '919701117424';
   
   // Authentication API config
   const AUTH_API_ENDPOINT = null; // e.g., 'https://your-api.example.com/auth' or Firebase/Supabase URL

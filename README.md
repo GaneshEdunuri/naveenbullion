@@ -1,15 +1,17 @@
 # Naveen Bullion & Jewellery — Static Website
 
-A modern, responsive static website to showcase bullion trading and jewellery services. Includes live market quotes for gold, silver, platinum, and palladium, plus rich sections for products, services, gallery, testimonials, FAQs, and contact.
+A modern, responsive static website to showcase bullion trading and jewellery services. Includes live market quotes, e-commerce shopping cart with Razorpay payment gateway, user authentication, and rich sections for products, services, gallery, FAQs, and contact.
 
 ## Features
-- Live quotes: Gold (XAU), Silver (XAG), Platinum (XPT), Palladium (XPD)
+- **E-commerce Shopping Cart**: Add gold/silver products (5g, 10g, 50g, 100g) to cart with live pricing
+- **Razorpay Payment Gateway**: Secure online payments with UPI, cards, net banking, wallets
+- **Live Market Quotes**: Gold (XAU), Silver (XAG) with real-time pricing
+- **User Authentication**: Registration and login system with session management
 - Currency toggle (INR / USD) with auto FX conversion
-- Clean, responsive design with accessible components
+- Clean, responsive design with dark/light theme
 - Products, services, gallery with SVG assets
-- Testimonials, FAQs, and contact with mailto/WhatsApp CTA
 - Quote form: Collects bullion requirements; sends via Web3Forms/API/EmailJS/Formspree
-- User authentication: Registration and login with session management
+- Floating WhatsApp button for instant contact
 
 ## Structure
 - `index.html` — main site
@@ -38,6 +40,25 @@ npx serve . -p 5500; Start-Process http://localhost:5500
 - Replace gallery images: drop your photos into `assets/img/` and update the gallery `<img>` sources.
 - Colors and theme: adjust CSS variables in `assets/css/styles.css`.
 - WhatsApp and Phone: update `tel:` and `wa.me` links in the Contact section.
+
+### Payment Gateway Setup (Razorpay)
+1. **Create Razorpay Account**: Sign up at https://dashboard.razorpay.com/signup
+2. **Get API Keys**:
+   - Go to Settings → API Keys
+   - Generate Test Keys (for testing) or Live Keys (for production)
+   - Copy the **Key ID** (starts with `rzp_test_` or `rzp_live_`)
+3. **Configure in Code**:
+   - Open `assets/js/app.js`
+   - Set `RAZORPAY_KEY_ID = 'your_key_id_here'`
+   - Update `BUSINESS_NAME`, `CONTACT_EMAIL`, `CONTACT_PHONE`
+4. **Testing**:
+   - Use test mode cards from https://razorpay.com/docs/payments/payments/test-card-details/
+   - Test UPI: success@razorpay
+   - Switch to live keys when ready for production
+
+**Important**: Never commit your secret key to GitHub. Only use Key ID in frontend code.
+
+### Email Configuration
  - Quote form destination:
 	 - Update `OWNER_EMAIL` in assets/js/app.js to your address.
 	 - Web3Forms: set `WEB3FORMS_ACCESS_KEY` in assets/js/app.js (get it from https://web3forms.com/dashboard).
